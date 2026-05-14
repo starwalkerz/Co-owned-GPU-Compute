@@ -1,0 +1,92 @@
+# ============================================================
+# HPC Share - System Requirements & External Dependencies
+# ============================================================
+
+# ------------------------------------------------------------
+# PART 1: SOFTWARE RUNTIMES
+# ------------------------------------------------------------
+
+Node.js >= 18.0.0
+npm >= 9.0.0
+Git (optional, for version control)
+
+# ------------------------------------------------------------
+# PART 2: WALLET (For Admin/Investors)
+# ------------------------------------------------------------
+
+MetaMask - https://metamask.io/
+Or any Web3-compatible wallet
+
+# ------------------------------------------------------------
+# PART 3: EXTERNAL PLATFORM ACCOUNTS
+# ------------------------------------------------------------
+
+Brickken Account - https://brickken.com (for token issuance)
+Nosana Account - https://nosana.io (for GPU compute marketplace)
+
+# ------------------------------------------------------------
+# PART 4: API KEYS (Required)
+# ------------------------------------------------------------
+
+BRICKKEN_API_KEY - From Brickken dashboard
+BRICKKEN_API_SECRET - From Brickken dashboard
+NOSANA_API_KEY - From Nosana dashboard
+
+# ------------------------------------------------------------
+# PART 5: OPTIONAL API KEYS
+# ------------------------------------------------------------
+
+JUPITER_API - For NOS to USDC swaps (https://jup.ag)
+COINMARKETCAP_API_KEY - For gas reporting
+
+# ------------------------------------------------------------
+# PART 6: HARDWARE REQUIREMENTS (For Running Nodes)
+# ------------------------------------------------------------
+
+For GPU nodes:
+- NVIDIA GPU (H200, A100, H100, or RTX 4090)
+- 16GB+ RAM
+- 100GB+ SSD
+- Stable internet connection
+- Docker installed (for Nosana jobs)
+
+# ------------------------------------------------------------
+# PART 7: NETWORK CONFIGURATIONS
+# ------------------------------------------------------------
+
+Polygon (Recommended) - Chain ID: 137
+Base - Chain ID: 8453
+Arbitrum - Chain ID: 42161
+Ethereum - Chain ID: 1 (higher fees)
+
+# ------------------------------------------------------------
+# PART 8: ENVIRONMENT VARIABLES
+# ------------------------------------------------------------
+
+Required:
+- BRICKKEN_API_KEY
+- BRICKKEN_API_SECRET
+- NOSANA_API_KEY
+- TREASURY_ADDRESS
+- BRICKKEN_TOKEN_ADDRESS
+
+Optional:
+- JUPITER_API_KEY
+- COINMARKETCAP_API_KEY
+- SOLANA_RPC_URL
+
+# ------------------------------------------------------------
+# PART 9: QUICK START COMMANDS
+# ------------------------------------------------------------
+
+# Install dependencies
+npm install
+
+# Run setup wizard
+open interface/setup.html
+
+# Or deploy manually
+npx hardhat run scripts/deploy.js --network polygon
+
+# Start interface
+cd interface && npx serve . -p 3000

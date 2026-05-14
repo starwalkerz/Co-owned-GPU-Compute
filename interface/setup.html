@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPC Share — Setup Wizard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .wizard-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+        .wizard-header {
+            background: linear-gradient(135deg, #2d6a4f, #1a472a);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .wizard-header h1 {
+            margin-bottom: 0.5rem;
+        }
+        .wizard-progress {
+            display: flex;
+            background: #f1f5f9;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #64748b;
+            position: relative;
+        }
+        .progress-step.active {
+            color: #2d6a4f;
+            font-weight: 600;
+        }
+        .progress-step.completed {
+            color: #10b981;
+        }
+        .progress-step .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        .progress-step.active .step-number {
+            border-color: #2d6a4f;
+            background: #2d6a4f;
+            color: white;
+        }
+        .progress-step.completed .step-number {
+            border-color: #10b981;
+            background: #10b981;
+            color: white;
+        }
+        .wizard-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .step-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .step-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        .form-section h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .form-row > * {
+            flex: 1;
+            min-width: 180px;
+        }
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.375rem;
+            color: #334155;
+        }
+        input, select {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2d6a4f;
+            ring: 2px solid #2d6a4f;
+        }
+        .test-connection {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .test-connection.success { color: #10b981; }
+        .test-connection.error { color: #ef4444; }
+        .test-connection.pending { color: #f59e0b; }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .summary-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
+        .summary-card h4 {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .summary-card p {
+            font-family: monospace;
+            font-size: 0.875rem;
+            word-break: break-all;
+            color: #1e293b;
+        }
+        .config-code {
+            background: #1e293b;
+            color: #a5f3c3;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-family: monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .wizard-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        .gpu-node-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            align-items: center;
+        }
+        .gpu-node-row input, .gpu-node-row select {
+            flex: 1;
+        }
+        .remove-node-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 0.625rem 0.875rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        .remove-node-btn:hover {
+            background: #fecaca;
+        }
+        .btn-primary, .btn-outline, .btn-secondary {
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn-primary {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #1a472a;
+        }
+        .btn-primary:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2d6a4f;
+            color: #2d6a4f;
+        }
+        .btn-outline:hover {
+            background: #2d6a4f;
+            color: white;
+        }
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+            border: none;
+        }
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-connected {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status-disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .text-center { text-align: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        @media (max-width: 768px) {
+            .wizard-progress { flex-direction: column; gap: 0.5rem; }
+            .form-row { flex-direction: column; }
+            .gpu-node-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">HPC Share Setup</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="admin.html">Admin</a>
+                <a href="user.html">Investor Portal</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <h1>🚀 Welcome to HPC Share</h1>
+            <p>Set up your GPU compute cluster tokenization in 5 steps</p>
+        </div>
+
+        <div class="wizard-progress">
+            <div class="progress-step" data-step="1">
+                <span class="step-number">1</span> Wallet & Network
+            </div>
+            <div class="progress-step" data-step="2">
+                <span class="step-number">2</span> Brickken Setup
+            </div>
+            <div class="progress-step" data-step="3">
+                <span class="step-number">3</span> Nosana Setup
+            </div>
+            <div class="progress-step" data-step="4">
+                <span class="step-number">4</span> Deploy Contract
+            </div>
+            <div class="progress-step" data-step="5">
+                <span class="step-number">5</span> Complete
+            </div>
+        </div>
+
+        <div class="wizard-body">
+            <!-- Step 1: Wallet & Network -->
+            <div id="step1" class="step-content active">
+                <h2>Step 1: Connect Wallet & Select Network</h2>
+                <p>Connect the wallet that will control the SPV (treasury wallet).</p>
+                
+                <div class="form-section">
+                    <h3>Wallet Connection</h3>
+                    <div class="form-row">
+                        <button id="wizardConnectWallet" class="btn-primary">Connect MetaMask</button>
+                        <span id="wizardWalletStatus" class="test-connection"></span>
+                    </div>
+                    <div id="walletInfo" style="display: none;" class="alert alert-success mt-2">
+                        ✅ Connected: <span id="connectedWalletAddress"></span>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Network Selection</h3>
+                    <div class="form-row">
+                        <select id="wizardNetwork">
+                            <option value="polygon">Polygon (Recommended - Low fees)</option>
+                            <option value="base">Base (Coinbase L2)</option>
+                            <option value="arbitrum">Arbitrum</option>
+                            <option value="ethereum">Ethereum Mainnet (Higher fees)</option>
+                        </select>
+                        <button id="switchNetworkBtn" class="btn-outline">Switch Network</button>
+                    </div>
+                    <div id="networkWarning" class="test-connection"></div>
+                </div>
+
+                <div class="form-section">
+                    <h3>SPV Configuration</h3>
+                    <div class="form-row">
+                        <div style="flex: 2;">
+                            <label>Treasury Wallet Address</label>
+                            <input type="text" id="treasuryWallet" placeholder="0x... (auto-fills from connected wallet)">
+                        </div>
+                        <div style="flex: 2;">
+                            <label>SPV Legal Name</label>
+                            <input type="text" id="spvName" placeholder="HPC Share SPV S.L.">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Registered Address</label>
+                            <input type="text" id="spvAddress" placeholder="Calle Ejemplo 123, Madrid, Spain">
+                        </div>
+                        <div>
+                            <label>Tax ID (NIF/CIF)</label>
+                            <input type="text" id="spvTaxId" placeholder="B-12345678">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wizard-nav">
+                    <button class="btn-secondary" disabled>Previous</button>
+                    <button id="step1Next" class="btn-primary">Next →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Brickken Setup -->
+            <div id="step2" class="step-content">
+                <h2>Step 2: Configure Brickken Tokenization</h2>
+                <p>Set up your regulated security token on Brickken's CNMV-approved platform.</p>
+
+                <div class="alert alert-info">
+                    💡 Don't have a Brickken account? <a href="https://brickken.com" target="_blank">Sign up here</a>
+                </div>
+
+                <div class="form-section">
+                    <h3>API Credentials</h3>
+                    <div class="form-row">
+                        <div style="flex: 2;">
+                            <label>API Key</label>
+                            <input type="password" id="brickkenApiKey" placeholder="Enter your Brickken API key">
+                        </div>
+                        <div style="flex: 2;">
+                            <label>API Secret</label>
+                            <input type="password" id="brickkenApiSecret" placeholder="Enter your Brickken API secret">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button id="testBrickkenConnection" class="btn-outline">Test Connection</button>
+                    </div>
+                    <div id="brickkenStatus" class="test-connection"></div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Token Parameters</h3>
+                    <div class="form-row">
+                        <div>
+                            <label>Token Name</label>
+                            <input type="text" id="tokenName" value="HPC Share" placeholder="Token Name">
+                        </div>
+                        <div>
+                            <label>Token Symbol</label>
+                            <input type="text" id="tokenSymbol" value="HPC" placeholder="Symbol (max 5 chars)">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Total Supply</label>
+                            <input type="number" id="totalSupply" value="1000000" placeholder="1,000,000">
+                        </div>
+                        <div>
+                            <label>Initial Price (€)</label>
+                            <input type="number" id="initialPrice" value="1.00" step="0.01" placeholder="1.00">
+                        </div>
+                        <div>
+                            <label>Decimal Places</label>
+                            <input type="number" id="tokenDecimals" value="18" placeholder="18">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Distribution Settings</h3>
+                    <div class="form-row">
+                        <div>
+                            <label>Distribution Currency</label>
+                            <select id="distributionCurrency">
+                                <option value="USDC">USDC (Recommended)</option>
+                                <option value="EURC">EURC</option>
+                                <option value="USDT">USDT</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Distribution Frequency</label>
+                            <select id="distributionFrequency">
+                                <option value="quarterly">Quarterly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="semi-annual">Semi-Annual</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wizard-nav">
+                    <button id="step2Prev" class="btn-secondary">← Previous</button>
+                    <button id="step2Next" class="btn-primary">Next →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Nosana Setup -->
+            <div id="step3" class="step-content">
+                <h2>Step 3: Configure Nosana Compute Marketplace</h2>
+                <p>Register your GPU nodes on Nosana's decentralized compute network.</p>
+
+                <div class="alert alert-info">
+                    💡 Need a Nosana account? <a href="https://nosana.io" target="_blank">Sign up here</a>
+                </div>
+
+                <div class="form-section">
+                    <h3>API Configuration</h3>
+                    <div class="form-row">
+                        <div style="flex: 2;">
+                            <label>Nosana API Key</label>
+                            <input type="password" id="nosanaApiKey" placeholder="Enter your Nosana API key">
+                        </div>
+                        <div style="flex: 1;">
+                            <button id="testNosanaConnection" class="btn-outline">Test Connection</button>
+                        </div>
+                    </div>
+                    <div id="nosanaStatus" class="test-connection"></div>
+                </div>
+
+                <div class="form-section">
+                    <h3>GPU Node Configuration</h3>
+                    <div id="gpuNodesList">
+                        <div class="gpu-node-row">
+                            <input type="text" placeholder="Node ID (e.g., node-01)" value="node-01">
+                            <select>
+                                <option value="H200">NVIDIA H200 (141GB VRAM)</option>
+                                <option value="A100">NVIDIA A100 (80GB VRAM)</option>
+                                <option value="H100">NVIDIA H100 (80GB VRAM)</option>
+                                <option value="RTX4090">NVIDIA RTX 4090 (24GB VRAM)</option>
+                            </select>
+                            <input type="text" placeholder="Location" value="Madrid, ES">
+                            <button class="remove-node-btn btn-outline">✖</button>
+                        </div>
+                    </div>
+                    <button id="addGpuNode" class="btn-outline mt-2">+ Add GPU Node</button>
+                </div>
+
+                <div class="form-section">
+                    <h3>Pricing Configuration</h3>
+                    <div class="form-row">
+                        <div>
+                            <label>Base Hourly Rate (USD)</label>
+                            <input type="number" id="hourlyRate" value="0.50" step="0.05" placeholder="0.50">
+                        </div>
+                        <div>
+                            <label>Currency</label>
+                            <select id="pricingCurrency">
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Minimum Job Duration (minutes)</label>
+                            <input type="number" id="minJobDuration" value="5" placeholder="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wizard-nav">
+                    <button id="step3Prev" class="btn-secondary">← Previous</button>
+                    <button id="step3Next" class="btn-primary">Next →</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Deploy Contract -->
+            <div id="step4" class="step-content">
+                <h2>Step 4: Deploy SPV Smart Contract</h2>
+                <p>Deploy the HPCSPV contract that will handle revenue and distributions.</p>
+
+                <div class="alert alert-warning">
+                    ⚠️ Ensure your wallet has sufficient MATIC (Polygon) for gas fees before deploying.
+                </div>
+
+                <div class="form-section">
+                    <h3>Contract Configuration</h3>
+                    <div class="form-row">
+                        <div style="flex: 2;">
+                            <label>Brickken Token Address</label>
+                            <input type="text" id="brickkenTokenAddress" placeholder="0x... (from Brickken issuance)">
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Management Fee (%)</label>
+                            <input type="number" id="managementFeePercent" value="2.0" step="0.5" placeholder="2.0">
+                        </div>
+                    </div>
+                    <div id="tokenAddressStatus" class="test-connection"></div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Deployment Command Preview</h3>
+                    <div class="config-code" id="deployCommandPreview">
+                        # Connect wallet and run deployment
+                    </div>
+                    <button id="deployContractBtn" class="btn-primary">🚀 Deploy Contract</button>
+                    <div id="deployStatus" class="test-connection mt-2"></div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Verify Contract (Optional)</h3>
+                    <div class="form-row">
+                        <input type="text" id="verifyApiKey" placeholder="Polygonscan API Key">
+                        <button id="verifyContractBtn" class="btn-outline">Verify on Polygonscan</button>
+                    </div>
+                </div>
+
+                <div class="wizard-nav">
+                    <button id="step4Prev" class="btn-secondary">← Previous</button>
+                    <button id="step4Next" class="btn-primary" disabled>Next →</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Complete -->
+            <div id="step5" class="step-content">
+                <h2>Step 5: Setup Complete! 🎉</h2>
+                <p>Your HPC Share infrastructure is ready for operation.</p>
+
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h4>SPV Contract</h4>
+                        <p id="summaryContractAddress">Not deployed</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Brickken Token</h4>
+                        <p id="summaryTokenAddress">Not configured</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Treasury Wallet</h4>
+                        <p id="summaryTreasury">Not connected</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>GPU Nodes</h4>
+                        <p id="summaryNodeCount">0 nodes</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>✅ Next Steps:</strong>
+                    <ul class="mt-2" style="margin-left: 1.5rem;">
+                        <li>Issue shares to investors via Brickken dashboard</li>
+                        <li>Run <code>npm run register-provider</code> to register GPU nodes</li>
+                        <li>Monitor jobs with <code>npm run monitor-jobs</code></li>
+                        <li>Quarterly distributions: <code>npm run distribute</code></li>
+                    </ul>
+                </div>
+
+                <div class="config-code" id="finalConfigCode">
+                    # Configuration will appear here
+                </div>
+
+                <div class="flex-between mt-4">
+                    <button id="step5Prev" class="btn-secondary">← Previous</button>
+                    <a href="admin.html" class="btn-primary">Go to Admin Dashboard →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="js/setup.js"></script>
+</body>
+</html>

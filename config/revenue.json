@@ -1,0 +1,19 @@
+{
+  "period": "Q1 2027",
+  "startDate": "2027-01-01",
+  "endDate": "2027-03-31",
+  "nosAmount": 12500,
+  "nosToUSDC_Rate": 0.95,
+  "usdcAmount": 11875,
+  "operatingExpenses": 2000,
+  "operatingExpensesBreakdown": {
+    "electricity": 1200,
+    "hosting": 500,
+    "maintenance": 200,
+    "software": 100
+  },
+  "managementFeeBps": 200,
+  "managementFee": 198,
+  "netDistribution": 9677,
+  "notes": "First quarter of operations. GPU utilization: 67%."
+}

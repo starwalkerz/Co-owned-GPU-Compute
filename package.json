@@ -1,0 +1,33 @@
+{
+  "name": "hpc-share",
+  "version": "1.0.0",
+  "description": "Tokenized shared GPU cluster with Brickken issuance and Nosana compute leasing",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy": "npx hardhat run scripts/deploy.js",
+    "issue": "node scripts/issue-shares.js",
+    "distribute": "node scripts/distribute-dividends.js",
+    "register-investor": "node scripts/register-investor.js",
+    "register-provider": "node integrations/nosana/provider-registration.js",
+    "monitor-jobs": "node integrations/nosana/job-monitor.js",
+    "collect-rewards": "node integrations/nosana/reward-collector.js",
+    "brickken-example": "node integrations/brickken/api-examples.js"
+  },
+  "dependencies": {
+    "@brickken/sdk": "^1.0.0",
+    "@nosana/sdk": "^0.5.0",
+    "@solana/web3.js": "^1.87.0",
+    "dotenv": "^16.0.3",
+    "ethers": "^6.6.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "hardhat": "^2.14.0",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
+  },
+  "license": "MIT"
+}

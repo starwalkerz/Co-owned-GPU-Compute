@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Maria Garcia",
+    "email": "maria@example.com",
+    "walletAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0b6a0",
+    "shares": 10000,
+    "jurisdiction": "ES",
+    "accreditedInvestor": true,
+    "sourceOfFunds": "employment"
+  },
+  {
+    "name": "Lukas Weber",
+    "email": "lukas@example.com",
+    "walletAddress": "0x8ba1f109551bD432803012645Ac136ddd64DBa72",
+    "shares": 5000,
+    "jurisdiction": "DE",
+    "accreditedInvestor": true,
+    "sourceOfFunds": "investments"
+  },
+  {
+    "name": "Elena Petrova",
+    "email": "elena@example.com",
+    "walletAddress": "0x1a0E31B85A9AaB1eaBCB10d736EdA105cF9fA8a8",
+    "shares": 2000,
+    "jurisdiction": "FR",
+    "accreditedInvestor": false,
+    "sourceOfFunds": "employment"
+  }
+]

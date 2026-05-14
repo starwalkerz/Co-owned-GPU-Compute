@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPC Share — Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">HPC Share Admin</span>
+            </div>
+            <div class="nav-links">
+                <span id="adminWallet" class="wallet-badge">Not Connected</span>
+                <button id="connectAdminBtn" class="btn-outline">Connect Wallet</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="admin-main">
+        <div class="admin-sidebar">
+            <button class="sidebar-btn active" data-tab="overview">📊 Overview</button>
+            <button class="sidebar-btn" data-tab="investors">👥 Investors</button>
+            <button class="sidebar-btn" data-tab="shifts">🖥️ Compute Nodes</button>
+            <button class="sidebar-btn" data-tab="distributions">💰 Distributions</button>
+            <button class="sidebar-btn" data-tab="settings">⚙️ Settings</button>
+        </div>
+
+        <div class="admin-content">
+            <!-- Overview Tab -->
+            <div id="overviewTab" class="tab-content active">
+                <h2>System Overview</h2>
+                <div class="admin-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalShares">0</div>
+                        <div class="stat-label">Total HPC Issued</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalHolders">0</div>
+                        <div class="stat-label">Total Holders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="gpuUtilization">0%</div>
+                        <div class="stat-label">GPU Utilization</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="treasuryBalance">$0</div>
+                        <div class="stat-label">Treasury (USDC)</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Recent Activity</h3>
+                    <div id="recentActivity" class="activity-log">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Investors Tab -->
+            <div id="investorsTab" class="tab-content">
+                <h2>Investor Management</h2>
+                <div class="card">
+                    <div class="flex-between">
+                        <h3>All Token Holders</h3>
+                        <button id="syncInvestorsBtn" class="btn-outline">🔄 Sync from Brickken</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="investorsTable">
+                            <thead>
+                                <tr><th>Wallet</th><th>Name</th><th>HPC Balance</th><th>Status</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="investorsTableBody">
+                                <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Register New Investor</h3>
+                    <div class="form-row">
+                        <input type="text" id="newInvestorName" placeholder="Full Name">
+                        <input type="email" id="newInvestorEmail" placeholder="Email">
+                        <input type="text" id="newInvestorWallet" placeholder="Wallet Address">
+                        <input type="number" id="newInvestorShares" placeholder="Shares (HPC)">
+                        <button id="registerInvestorBtn" class="btn-primary">Register & Issue</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compute Nodes Tab -->
+            <div id="shiftsTab" class="tab-content">
+                <h2>GPU Compute Nodes</h2>
+                <div class="card">
+                    <div class="flex-between">
+                        <h3>Node Status</h3>
+                        <button id="refreshNodesBtn" class="btn-outline">🔄 Refresh</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="nodesTable">
+                            <thead><tr><th>Node ID</th><th>GPU Model</th><th>Status</th><th>Utilization</th><th>Jobs Completed</th><th>Earnings (NOS)</th></tr></thead>
+                            <tbody id="nodesTableBody"><tr><td colspan="6" class="text-center">Loading...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Register New Node</h3>
+                    <div class="form-row">
+                        <input type="text" id="nodeId" placeholder="Node ID (e.g., node-05)">
+                        <select id="nodeGpuModel">
+                            <option value="H200">NVIDIA H200</option>
+                            <option value="A100">NVIDIA A100</option>
+                            <option value="H100">NVIDIA H100</option>
+                        </select>
+                        <button id="registerNodeBtn" class="btn-primary">Register on Nosana</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Distributions Tab -->
+            <div id="distributionsTab" class="tab-content">
+                <h2>Dividend Distributions</h2>
+                <div class="card">
+                    <h3>Current Quarter</h3>
+                    <div id="currentQuarterInfo">Loading...</div>
+                    <div class="form-row">
+                        <input type="number" id="distributionAmount" placeholder="Amount (USDC)">
+                        <button id="triggerDistributionBtn" class="btn-primary">Trigger Distribution</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Distribution History</h3>
+                    <div class="table-container">
+                        <table id="distributionHistoryTable">
+                            <thead><tr><th>Date</th><th>Amount (USDC)</th><th>Per HPC</th><th>Holders</th><th>Status</th></tr></thead>
+                            <tbody id="distributionHistoryBody"><tr><td colspan="5" class="text-center">No distributions yet</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <h2>SPV Settings</h2>
+                <div class="card">
+                    <h3>Management Fee</h3>
+                    <div class="form-row">
+                        <input type="number" id="managementFee" step="0.1" placeholder="Fee (%)">
+                        <button id="updateFeeBtn" class="btn-outline">Update</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Treasury Address</h3>
+                    <div class="form-row">
+                        <input type="text" id="treasuryAddress" placeholder="New Treasury Address">
+                        <button id="updateTreasuryBtn" class="btn-outline">Update</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>API Configuration</h3>
+                    <div class="form-row">
+                        <input type="password" id="brickkenApiKey" placeholder="Brickken API Key">
+                        <input type="password" id="nosanaApiKey" placeholder="Nosana API Key">
+                        <button id="saveApiKeysBtn" class="btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
